@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dfrobot_baron">
+
+  <xacro:include filename="$(find dfrobot_robots)/urdf/common.xacro" />
+
+  <xacro:property name="base_plate_length" value="0.232" />
+  <xacro:property name="base_plate_height" value="0.077" />
+  <xacro:property name="base_plate_width" value="0.176" />
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="${base_plate_length} ${base_plate_width} ${base_plate_height}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${base_plate_length} ${base_plate_width} ${base_plate_height}"/>
+      </geometry>
+    </collision> 
+  </link>
+
+  <joint name="controlboard_to_base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="control_board"/>
+    <origin rpy="0 0 0" xyz="-0.03 0 ${base_plate_height/2 + 0.002}"/>
+  </joint>
+
+
+  <xacro:property name="wheel_height" value="${-base_plate_height/2+0.02}" />
+
+  <xacro:wheel suffix="front_left" parent="base_link">
+    <origin rpy="${-pi/2}  0 0" xyz="${base_plate_length/2 - 0.03} ${(base_plate_width/2-wheel_width/2)} ${wheel_height}"/>
+  </xacro:wheel>
+  <xacro:wheel suffix="front_right"  parent="base_link">
+    <origin rpy="${-pi/2} 0 0" xyz="${base_plate_length/2 - 0.03} ${-(base_plate_width/2-wheel_width/2)} ${wheel_height}"/>
+  </xacro:wheel>
+  <xacro:wheel suffix="rear_left" parent="base_link">
+    <origin rpy="${-pi/2}  0 0" xyz="${-base_plate_length/2 + 0.03} ${(base_plate_width/2-wheel_width/2)} ${wheel_height}"/>
+  </xacro:wheel>
+  <xacro:wheel suffix="rear_right"  parent="base_link">
+    <origin rpy="${-pi/2} 0 0" xyz="${-base_plate_length/2 + 0.03} ${-(base_plate_width/2-wheel_width/2)} ${wheel_height}"/>
+  </xacro:wheel>
+
+</robot>

@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find dfrobot_robots)/urdf/materials.xacro" />
+
+  <!-- Wheels -->
+  <xacro:property name="wheel_radius" value="0.0325" />
+  <xacro:property name="wheel_rim_radius" value="0.025" />
+  <xacro:property name="wheel_width" value="0.025" />
+
+  <xacro:macro name="wheel" params="suffix parent *origin">
+    <link name="wheel_${suffix}">
+      <visual>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+        </geometry>
+        <material name="rubber"/>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+        </geometry>
+      </collision> 
+      <inertial>
+        <mass value="0.2"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+    </link>
+
+    <gazebo reference="wheel_${suffix}">
+      <mu1 value="200.0"/>
+      <mu2 value="100.0"/>
+      <kp value="10000000.0" />
+      <kd value="1.0" />
+      <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+    <joint name="base_to_wheel_${suffix}_joint" type="continuous">
+      <parent link="${parent}"/>
+      <child link="wheel_${suffix}"/>
+      <axis xyz="0 0 1"/>
+      <xacro:insert_block name="origin" />
+    </joint>
+
+    <transmission name="wheel_${suffix}_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="wheel_${suffix}_motor">
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+      <joint name="base_to_wheel_${suffix}_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+    </transmission>
+
+    <link name="wheel_rim_${suffix}">
+      <visual>
+        <geometry>
+          <cylinder length="${0.001+wheel_width}" radius="${wheel_rim_radius}"/>
+        </geometry>
+        <material name="yellow"/>
+      </visual>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+    </link>
+
+    <gazebo reference="wheel_rim_${suffix}">
+      <material>Gazebo/Yellow</material>
+    </gazebo>
+
+    <joint name="wheel_${suffix}_to_rim_joint" type="fixed">
+      <parent link="wheel_${suffix}"/>
+      <child link="wheel_rim_${suffix}"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </joint>
+
+  </xacro:macro>
+
+  <!-- Control board -->
+  <link name="control_board">
+    <visual>
+      <geometry>
+        <box size="0.08 0.1 0.001"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <gazebo reference="control_board">
+    <material>Gazebo/Green</material>
+  </gazebo>
+
+  <!-- ros_control plugin -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+
+</robot>
